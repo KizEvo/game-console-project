@@ -35,7 +35,7 @@ void Clock_Init(void){
 	while(!((RCC->CR & 1 << 25) == 0));
 
 	// System clock switch to PLL and wait for it to become ready
-	RCC->CFGR |= 0x2;
+	RCC->CFGR |= (0x2 << 0);
 	while(!((RCC->CFGR & 2 << 2) == 8));
 }
 

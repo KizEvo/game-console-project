@@ -24,19 +24,29 @@
 #include "gpio.h"
 #include "timer.h"
 #include "spi.h"
+#include "lcd.h"
+#include "interrupt.h"
+// Game header files
+#include "snake_game.h"
 
 int main(void){
-
 	Clock_Init();
+
 	Timer2_Init();
-	SPI2_Init();
+
+	GPIOA_Init();
 	GPIOB_Init();
+	GPIOC_Init();
 
-	/* Testing 		*/
-//	SPI2_Enable();
-//	SPI2_WriteData(0xAA);
+	SPI1_Init();
+	SPI1_Enable();
 
-    /* Loop forever */
+	EXTI_Init();
+	NVIC_Enable();
+
+	LCD_Init();
+
 	while(1){
+		GameSnake_Start();
 	}
 }
