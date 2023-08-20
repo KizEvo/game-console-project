@@ -16,13 +16,24 @@
 #include "spi.h"
 #include "gpio.h"
 
+// Global variable
+// Buffer to keep track of drew pixel
+// 0x01 at [Yn][Xn] means that location have been drawn
+// 0x00 at [Yn][Xn] means that location have NOT been drawn
+// [1;7] bits can be used for other purposes
 uint8_t bufferLCD[48][84] = {{0}};
 
-uint8_t contrastLCD = 0x45;
+// Global variable
+// LCD contrast value
+uint8_t contrastLCD = 0x47;
 
+// Offset from previously set position
+// X: 0 to 83
+// Y: 0 to 5 (Y bank)
 uint8_t offsetX = 0;
 uint8_t offsetY = 0;
 
+// Previous set position
 uint8_t prevSetX = 0;
 uint8_t prevSetY = 0;
 
@@ -77,6 +88,7 @@ void LCD_WriteCommand(const uint8_t command){
 
 /************ DESCRIPTION *************
  * Sequence to write a Data to display in LCD
+ * Call update buffer function, update offset
 ***************************************/
 
 void LCD_WriteData(const uint8_t data){
@@ -88,7 +100,9 @@ void LCD_WriteData(const uint8_t data){
 	SPI1_WriteData(data);
 	// Set SCE pin
 	GPIOB->BSRR |= (1 << SET_PIN(6));
-
+	// Update bufferLCD[Y][X]
+	LCD_UpdateBuffer(data);
+	// Update offset global variables
 	LCD_UpdatePosOffset();
 }
 
@@ -100,16 +114,21 @@ void LCD_GUI(void){
 	LCD_WriteData(0x00);
 }
 
+/************ DESCRIPTION *************
+ * Clear LCD screen and bufferLCD global variable
+***************************************/
+
 void LCD_ClearScreen(void){
-	static uint8_t stage;
 	for(uint8_t row = 0; row <= 5; row++){
+		prevSetY = row;
+		offsetY = 0;
 		for(uint8_t col = 0; col <= 83; col++)
 		{
+			prevSetX = col;
+			offsetX = 0;
 			LCD_WriteData(0x00);
-			if(stage == 1) bufferLCD[row][col] = 0x00;
 		}
 	}
-	stage = 1;
 }
 
 /************ DESCRIPTION *************
@@ -170,11 +189,18 @@ void LCD_DrawPixel(uint8_t Xpos, uint8_t Ypos){
 	uint8_t Ybank = Ypos >> 3;
 	uint8_t pixelData = 0x00 | prevPixelData | (1 << (Ypos % 8));
 
-	bufferLCD[Ypos][Xpos] |= 1;
+//	bufferLCD[Ypos][Xpos] |= 1;
 
 	LCD_SetPosition(Xpos, Ybank);
 	LCD_WriteData(pixelData);
 }
+
+/************ DESCRIPTION *************
+ * Erase a pixel on LCD screen
+ * Offset global variables have no effect when using this function repeatedly
+ * X: 0 to 83
+ * Y: 0 to 47
+***************************************/
 
 void LCD_ErasePixel(uint8_t Xpos, uint8_t Ypos){
 	if(Xpos >= LCD_MAX_X_PIXEL) Xpos = LCD_MAX_X_PIXEL;
@@ -194,10 +220,19 @@ void LCD_ErasePixel(uint8_t Xpos, uint8_t Ypos){
 	uint8_t pixelData = prevPixelData;
 	pixelData &= ~(1 << (Ypos % 8));
 
-	bufferLCD[Ypos][Xpos] &= ~(1 << 0);
-
 	LCD_SetPosition(Xpos, Ybank);
 	LCD_WriteData(pixelData);
+}
+
+void LCD_UpdateBuffer(uint8_t data){
+	uint8_t Xpos = prevSetX + offsetX;
+	uint8_t Ypos = 8 * prevSetY + offsetY;
+	for(; Ypos < (8 * prevSetY + offsetY + 8); Ypos++){
+		if((data & 1) == 1) bufferLCD[Ypos][Xpos] |= (1 << 0);
+		else bufferLCD[Ypos][Xpos] &= ~(1 << 0);
+
+		data = data >> 1;
+	}
 }
 
 uint8_t LCD_IncrementContrast(void){

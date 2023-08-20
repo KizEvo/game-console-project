@@ -23,12 +23,11 @@ void GameSnake_Start(void){
 
 	uint8_t directionFlag = GAMESNAKE_TURNRIGHT;
 
-	GameSnake_UpdatePositionHead(&directionFlag, &headX, &headY);
-	GameSnake_SavePathTraversal(&headX, &headY, &pathX, &pathY);
-	GameSnake_UpdatePositionHead(&directionFlag, &headX, &headY);
-	GameSnake_SavePathTraversal(&headX, &headY, &pathX, &pathY);
-	GameSnake_UpdatePositionHead(&directionFlag, &headX, &headY);
-	GameSnake_SavePathTraversal(&headX, &headY, &pathX, &pathY);
+
+	for(uint8_t snakeLength = 0; snakeLength < 4; snakeLength++){
+		GameSnake_UpdatePositionHead(&directionFlag, &headX, &headY);
+		GameSnake_SavePathTraversal(&headX, &headY, &pathX, &pathY);
+	}
 
 	while(1){
 		if(!GameSnake_UpdatePositionHead(&directionFlag, &headX, &headY)) break;
@@ -73,7 +72,8 @@ uint8_t GameSnake_UpdatePositionHead(uint8_t *dirFlag, uint8_t *Xpos, uint8_t *Y
 	else if(*dirFlag == GAMESNAKE_MOVEUP) (*Ypos)--;
 	else if(*dirFlag == GAMESNAKE_MOVEDOWN) (*Ypos)++;
 
-	if((bufferLCD[*Xpos][*Ypos] & 0x1) == 1) return 0;
+	// If snake head touch it's body then end game
+	if((bufferLCD[*Ypos][*Xpos] & 0x1) == 1) return 0;
 
 	LCD_DrawPixel(*Xpos, *Ypos);
 	return 1;
@@ -90,6 +90,10 @@ void GameSnake_UpdatePositionTail(uint8_t *Xidx, uint8_t *Yidx){
 	}
 
 	LCD_ErasePixel(bufferLCD[(*Yidx)][(*Xidx)] >> 1, bufferLCD[(*Yidx)][(*Xidx) + 1] >> 1);
+	// Clear saved path
+	bufferLCD[(*Yidx)][(*Xidx)] &= ~(0xFE);
+	bufferLCD[(*Yidx)][(*Xidx) + 1] &= ~(0xFE);
+	// Update index position for the next cycle
 	*Xidx += 2;
 }
 
@@ -102,6 +106,8 @@ void GameSnake_SavePathTraversal(uint8_t *Xpos, uint8_t *Ypos, uint8_t *Xidx, ui
 		*Yidx = 0;
 		*Xidx = 0;
 	}
+	// Set Xpos and Ypos to buffer[Y][X] and buffer[Y][X + 1] respectively
+	// Shift left 1 to keep LCD_DrawPixel data
 	bufferLCD[(*Yidx)][(*Xidx)++] |= (*Xpos) << 1;
 	bufferLCD[(*Yidx)][(*Xidx)++] |= (*Ypos) << 1;
 }

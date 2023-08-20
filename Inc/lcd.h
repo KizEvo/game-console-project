@@ -54,6 +54,7 @@ void LCD_GUI(void);
 void LCD_ClearScreen(void);
 void LCD_SetPosition(uint8_t Xpos, uint8_t Ybank);
 void LCD_UpdatePosOffset(void);
+void LCD_UpdateBuffer(const uint8_t data);
 void LCD_DrawPixel(uint8_t Xpos, uint8_t Ypos);
 void LCD_ErasePixel(uint8_t Xpos, uint8_t Ypos);
 
