@@ -25,7 +25,7 @@ uint8_t bufferLCD[48][84] = {{0}};
 
 // Global variable
 // LCD contrast value
-uint8_t contrastLCD = 0x47;
+uint8_t contrastLCD = 0x45;
 
 // Offset from previously set position
 // X: 0 to 83
@@ -178,7 +178,7 @@ void LCD_DrawPixel(uint8_t Xpos, uint8_t Ypos){
 
 	uint8_t prevPixelData = 0x00;
 	uint8_t upperLimitY = 8 * (Ypos / 8 + 1);
-	uint8_t lowerLimitY = Ypos - (Ypos % 8);
+	uint8_t lowerLimitY = upperLimitY - 8;
 	uint8_t bin = 0;
 
 	for(uint8_t i = lowerLimitY; i < upperLimitY; i++){

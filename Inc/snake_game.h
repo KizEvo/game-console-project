@@ -16,9 +16,10 @@
 void GameSnake_GUI(void);
 void GameSnake_Start(void);
 
-uint8_t GameSnake_UpdatePositionHead(uint8_t *dirFlag, uint8_t *Xpos, uint8_t *Ypos);
+uint8_t GameSnake_UpdatePositionHead(uint8_t *dirFlag, uint8_t *appleFlag, uint8_t *Xpos, uint8_t *Ypos);
 void GameSnake_UpdatePositionTail(uint8_t *Xpos, uint8_t *Ypos);
-
 void GameSnake_SavePathTraversal(uint8_t *Xpos, uint8_t *Ypos, uint8_t *Xidx, uint8_t *Yidx);
+uint16_t GameSnake_CreateApple(uint8_t *appleFlag);
+void GameSnake_RemoveApple(uint8_t Xpos, uint8_t Ypos);
 
 #endif /* SNAKE_GAME_H_ */
