@@ -48,3 +48,35 @@ void Timer2_Delay(int timeInMs){
 	// Disable counter
 	TIM2->CR1 &= ~(1 << 0);
 }
+
+/************ DESCRIPTION *************
+ * Configure Timer2 delay of 1us
+***************************************/
+
+void Timer2_DelayMicro(int timeInMicrosecond){
+	// Enable pre-load ARR buffer
+	TIM2->CR1 |= (1 << 7);
+
+	// ARR value
+	TIM2->ARR = 12;
+
+	// Pre-scaler value
+	TIM2->PSC = 3;
+
+	// Clear previous update interrupt flag UIF
+	TIM2->SR &= ~(1 << 0);
+
+	// Enable counter
+	TIM2->CR1 |= (1 << 0);
+
+	// Delay
+	while(timeInMicrosecond-- > 0)
+	{
+		while((TIM2->SR & 1 << 0) == 0);
+		// Clear update interrupt flag UIF
+		TIM2->SR &= ~(1 << 0);
+	}
+
+	// Disable counter
+	TIM2->CR1 &= ~(1 << 0);
+}
