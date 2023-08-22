@@ -15,6 +15,7 @@
 #include "timer.h"
 #include "spi.h"
 #include "gpio.h"
+#include "font.h"
 
 // Global variable
 // Buffer to keep track of drew pixel
@@ -156,13 +157,23 @@ void LCD_SetPosition(uint8_t Xpos, uint8_t Ybank){
 /************ DESCRIPTION *************
  * Update position offset from previous set position
  * Get called whenever user write a Data to LCD
+ * Reset to position 0 when go out of bound
 ***************************************/
 
 void LCD_UpdatePosOffset(void){
 	offsetX++;
 
-	if(prevSetX + offsetX > LCD_MAX_X_PIXEL)
+	if(prevSetX + offsetX > LCD_MAX_X_PIXEL){
 		offsetY++;
+		offsetX = 0;
+	}
+
+	if(prevSetY + offsetY > LCD_MAX_Y_BANK){
+		offsetX = 0;
+		offsetY = 0;
+		prevSetX = 0;
+		prevSetY = 0;
+	}
 }
 
 /************ DESCRIPTION *************
@@ -224,9 +235,26 @@ void LCD_ErasePixel(uint8_t Xpos, uint8_t Ypos){
 	LCD_WriteData(pixelData);
 }
 
+/************ DESCRIPTION *************
+ * Write a string to LCD screen
+ * 5 * 8 font
+***************************************/
+
+void LCD_WriteString(char *string){
+	for(uint8_t i = 0; string[i] != '\0'; i++){
+		for(uint8_t j = 0; j < 5; j++)
+			LCD_WriteData( ASCII[string[i] - 32][j] );
+	}
+}
+
 void LCD_UpdateBuffer(uint8_t data){
 	uint8_t Xpos = prevSetX + offsetX;
 	uint8_t Ypos = 8 * prevSetY + offsetY;
+
+	// User-defined error
+	// Will be deleted later
+	if(Xpos > LCD_MAX_X_PIXEL || Ypos > LCD_MAX_Y_PIXEL) GPIOC_Warning();
+
 	for(; Ypos < (8 * prevSetY + offsetY + 8); Ypos++){
 		if((data & 1) == 1) bufferLCD[Ypos][Xpos] |= (1 << 0);
 		else bufferLCD[Ypos][Xpos] &= ~(1 << 0);

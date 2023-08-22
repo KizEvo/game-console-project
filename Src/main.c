@@ -46,7 +46,14 @@ int main(void){
 
 	LCD_Init();
 
+	char str[] = "Hello world";
+
+	LCD_SetPosition(0, 2);
+	LCD_WriteString(str);
+
 	while(1){
-		GameSnake_Start();
+//		GameSnake_Start();
+		// Find out about bitmap (fonts, symbols, numbers etc)
+//		LCD_GUI();
 	}
 }

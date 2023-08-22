@@ -15,4 +15,6 @@ void GPIOA_Init(void);
 void GPIOB_Init(void);
 void GPIOC_Init(void);
 
+void GPIOC_Warning(void);
+
 #endif /* GPIO_H_ */

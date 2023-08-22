@@ -57,6 +57,7 @@ void LCD_UpdatePosOffset(void);
 void LCD_UpdateBuffer(const uint8_t data);
 void LCD_DrawPixel(uint8_t Xpos, uint8_t Ypos);
 void LCD_ErasePixel(uint8_t Xpos, uint8_t Ypos);
+void LCD_WriteString(char *string);
 
 uint8_t LCD_IncrementContrast(void);
 uint8_t LCD_DecrementContrast(void);

@@ -45,5 +45,26 @@ void GPIOC_Init(void){
 	GPIOC->CRH = 0x00200000;
 
 	// Set PIN 13
-	GPIOB->BSRR |= (1 << RESET_PIN(13));
+	GPIOB->BSRR |= (1 << SET_PIN(13));
+}
+
+/************ DESCRIPTION *************
+ * Warning signal when user-defined error occurred
+ * Not really effective but at least it will tell something have went wrong and need attentions
+ * Only needed in development
+***************************************/
+
+void GPIOC_Warning(void){
+	for(uint8_t i = 0; i < 10; i++){
+		GPIOC->BSRR |= (1 << SET_PIN(13));
+		Timer2_Delay(150);
+		GPIOC->BSRR |= (1 << RESET_PIN(13));
+		Timer2_Delay(150);
+		GPIOC->BSRR |= (1 << SET_PIN(13));
+		Timer2_Delay(500);
+		GPIOC->BSRR |= (1 << RESET_PIN(13));
+		Timer2_Delay(200);
+	}
+
+	while(1);
 }
