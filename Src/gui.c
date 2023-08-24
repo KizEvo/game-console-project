@@ -53,7 +53,10 @@ void GUI_UpdatePointers(void){
 	// Move pointer on LCD up
 	if(flagBtnAction2) {
 		if(selectPointer > 0) selectPointer--;
-		if(selectPointer + 1 == 5) GUI_ClearGraphicStatus();
+		if(selectPointer + 1 == 5) {
+			GUI_ClearGraphicStatus();
+			selectPointer = 0;
+		}
 		EXTI_ClearIRQFlag(&flagBtnAction2);
 	}
 	// Move pointer on LCD down
@@ -119,9 +122,10 @@ void GUI_UpdateLCDOption(char *graphicStr[], const uint8_t *options){
 		LCD_WriteString("            ");
 	}
 	// Write new string
+	uint8_t yBank = 1;
 	for(uint8_t i = 5 * (selectPointer / 5);
 			(i < 5 * (selectPointer / 5) + 5) && (options[i] != 0); i++){
-		LCD_SetPosition(20, i + 1);
+		LCD_SetPosition(20, yBank++);
 		LCD_WriteString(graphicStr[i]);
 	}
 }
@@ -151,8 +155,8 @@ void GUI_FillCurrentScreenOptions(const uint8_t *optionsArr){
 }
 
 void GUI_MainScreen(void){
-	uint8_t options[] = {GUI_SCREEN_GAMES, GUI_SCREEN_SETTINGS, 0};
-	char *graphic[] = {"Games", "Settings"};
+	uint8_t options[] = {GUI_SCREEN_GAMES, GUI_SCREEN_SETTINGS, 1, 2, 3, 4, 5, 0};
+	char *graphic[] = {"Games", "Settings", "One", "Two", "Three", "Four", "Five"};
 
 	if(!isFirstGraphicUpdate) {
 		GUI_FillCurrentScreenOptions(options);
