@@ -103,17 +103,7 @@ void GameSnake_Start(void){
 }
 
 void GameSnake_GUI(void){
-	for(uint8_t row = 1; row <= LCD_MAX_Y_PIXEL - 1; row++){
-		for(uint8_t col = 1; col <= LCD_MAX_X_PIXEL - 1; col++){
-			if(row == 1 || row == LCD_MAX_Y_PIXEL - 1) {
-				LCD_DrawPixel(col, row);
-			} else {
-				LCD_DrawPixel(1, row);
-				LCD_DrawPixel(LCD_MAX_X_PIXEL - 1, row);
-				break;
-			}
-		}
-	}
+	LCD_DrawSquare(1, LCD_MAX_X_PIXEL - 1, 1, LCD_MAX_Y_PIXEL);
 }
 
 uint8_t GameSnake_UpdatePositionHead(uint8_t *dirFlag, uint8_t *appleFlag, uint8_t *Xpos, uint8_t *Ypos){
@@ -162,6 +152,9 @@ void GameSnake_SavePathTraversal(uint8_t *Xpos, uint8_t *Ypos, uint8_t *Xidx, ui
 		*Xidx = 0;
 	}
 	Timer2_Delay(1);
+
+	// TEST: Clear bit [1;7] first then set Xpos and Ypos below
+
 	// Set Xpos and Ypos to buffer[Y][X] and buffer[Y][X + 1] respectively
 	// Shift left 1 to keep LCD_DrawPixel data
 	bufferLCD[(*Yidx)][(*Xidx)++] |= (*Xpos) << 1;

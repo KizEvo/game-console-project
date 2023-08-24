@@ -8,6 +8,8 @@
 #ifndef INTERRUPT_H_
 #define INTERRUPT_H_
 
+#include <stdint.h>
+
 extern uint8_t flagBtnAction0;	// SELECT / OK / Others
 extern uint8_t flagBtnAction1;	// Others
 extern uint8_t flagBtnAction2;	// Others

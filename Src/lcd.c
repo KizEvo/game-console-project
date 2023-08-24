@@ -5,10 +5,6 @@
  *      Author: Nguyen Duc Phu
  */
 
-/************ DESCRIPTION *************
- * Initialization for Nokia 5110 Monochrome LCD
-***************************************/
-
 #include <stm32f1xx.h>
 #include <math.h>
 #include "lcd.h"
@@ -40,6 +36,7 @@ uint8_t prevSetY = 0;
 
 /************ DESCRIPTION *************
  * Initialize Nokia 5110 Monochrome LCD sequence
+ * Only called one at program startup
  * Must enable SPI peripheral before using this function
 ***************************************/
 
@@ -73,6 +70,7 @@ void LCD_Init(void){
 
 /************ DESCRIPTION *************
  * Sequence to write a Command to LCD
+ * Must enable SPI peripheral before using this function
 ***************************************/
 
 void LCD_WriteCommand(const uint8_t command){
@@ -90,6 +88,7 @@ void LCD_WriteCommand(const uint8_t command){
 /************ DESCRIPTION *************
  * Sequence to write a Data to display in LCD
  * Call update buffer function, update offset
+ * Must enable SPI peripheral before using this function
 ***************************************/
 
 void LCD_WriteData(const uint8_t data){
@@ -109,14 +108,19 @@ void LCD_WriteData(const uint8_t data){
 
 
 void LCD_GUI(void){
-	LCD_WriteData(0x1F);
-	LCD_WriteData(0x05);
-	LCD_WriteData(0x07);
-	LCD_WriteData(0x00);
+	Timer2_Delay(1000);
+
+	LCD_DrawSquare(1, LCD_MAX_X_PIXEL - 1, 1, LCD_MAX_Y_PIXEL - 1);
+
+	Timer2_Delay(5000);
+
+	LCD_SetPosition(5, 4);
+	LCD_WriteString("Hello world");
 }
 
 /************ DESCRIPTION *************
  * Clear LCD screen and bufferLCD global variable
+ * Must enable SPI peripheral before using this function
 ***************************************/
 
 void LCD_ClearScreen(void){
@@ -138,6 +142,7 @@ void LCD_ClearScreen(void){
  * Set previous X and Y global variables
  * X : 0 to 83
  * Ybank : 0 to 5
+ * Must enable SPI peripheral before using this function
 ***************************************/
 
 void LCD_SetPosition(uint8_t Xpos, uint8_t Ybank){
@@ -156,6 +161,7 @@ void LCD_SetPosition(uint8_t Xpos, uint8_t Ybank){
 
 /************ DESCRIPTION *************
  * Update position offset from previous set position
+ * User should NOT call this function alone
  * Get called whenever user write a Data to LCD
  * Reset to position 0 when go out of bound
 ***************************************/
@@ -181,6 +187,7 @@ void LCD_UpdatePosOffset(void){
  * Offset global variables have no effect when using this function repeatedly
  * X: 0 to 83
  * Y: 0 to 47
+ * Must enable SPI peripheral before using this function
 ***************************************/
 
 void LCD_DrawPixel(uint8_t Xpos, uint8_t Ypos){
@@ -200,10 +207,42 @@ void LCD_DrawPixel(uint8_t Xpos, uint8_t Ypos){
 	uint8_t Ybank = Ypos >> 3;
 	uint8_t pixelData = 0x00 | prevPixelData | (1 << (Ypos % 8));
 
-//	bufferLCD[Ypos][Xpos] |= 1;
-
 	LCD_SetPosition(Xpos, Ybank);
 	LCD_WriteData(pixelData);
+}
+
+/************ DESCRIPTION *************
+ * Draw a square on LCD screen
+ * Must enable SPI peripheral before using this function
+***************************************/
+
+void LCD_DrawSquare(uint8_t startXpos, uint8_t endXpos, uint8_t startYpos, uint8_t endYpos){
+	// User-defined error
+	if(startXpos == endXpos || startYpos == endYpos) GPIOC_Warning();
+
+	// Swap start and end if start > end
+	if(startXpos > endXpos) {
+		startXpos += endXpos;
+		endXpos = startXpos - endXpos;
+		startXpos = startXpos - endXpos;
+	}
+	if(startYpos > endYpos){
+		startYpos += endYpos;
+		endYpos = startYpos - endYpos;
+		startYpos = startYpos - endYpos;
+	}
+	// Draw square
+	for(uint8_t row = startYpos; row <= endYpos; row++){
+		for(uint8_t col = startXpos; col <= endXpos; col++)
+		{
+			if(row == startYpos || row == endYpos) LCD_DrawPixel(col, row);
+			else {
+				LCD_DrawPixel(startXpos, row);
+				LCD_DrawPixel(endXpos, row);
+				break;
+			}
+		}
+	}
 }
 
 /************ DESCRIPTION *************
@@ -211,6 +250,7 @@ void LCD_DrawPixel(uint8_t Xpos, uint8_t Ypos){
  * Offset global variables have no effect when using this function repeatedly
  * X: 0 to 83
  * Y: 0 to 47
+ * Must enable SPI peripheral before using this function
 ***************************************/
 
 void LCD_ErasePixel(uint8_t Xpos, uint8_t Ypos){
@@ -238,6 +278,7 @@ void LCD_ErasePixel(uint8_t Xpos, uint8_t Ypos){
 /************ DESCRIPTION *************
  * Write a string to LCD screen
  * 5 * 8 font
+ * Must enable SPI peripheral before using this function
 ***************************************/
 
 void LCD_WriteString(char *string){
@@ -246,6 +287,12 @@ void LCD_WriteString(char *string){
 			LCD_WriteData( ASCII[string[i] - 32][j] );
 	}
 }
+
+/************ DESCRIPTION *************
+ * Update bufferLCD[y][x]
+ * User should NOT call this function alone
+ * Get called whenever user write a Data to LCD
+***************************************/
 
 void LCD_UpdateBuffer(uint8_t data){
 	uint8_t Xpos = prevSetX + offsetX;

@@ -5,6 +5,8 @@
  *      Author: Nguyen Duc Phu
  */
 
+#include "font.h"
+
 /************ DESCRIPTION *************
  * Font for Nokia 5110
  * 5 * 8 Font

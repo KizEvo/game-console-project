@@ -26,8 +26,8 @@
 #include "spi.h"
 #include "lcd.h"
 #include "interrupt.h"
-// Game header files
-#include "snake_game.h"
+// GUI header files
+#include "gui.h"
 
 int main(void){
 	Clock_Init();
@@ -46,14 +46,14 @@ int main(void){
 
 	LCD_Init();
 
-	char str[] = "Hello world";
-
-	LCD_SetPosition(0, 2);
-	LCD_WriteString(str);
+	GUI_UpdateLCDPointer();
+	GUI_ScreenSelection();
+	GUI_SetGraphicStatus();
 
 	while(1){
-//		GameSnake_Start();
-		// Find out about bitmap (fonts, symbols, numbers etc)
-//		LCD_GUI();
+		GUI_UpdatePointers();
+		GUI_UpdateLCDPointer();
+		GUI_ScreenSelection();
+		GUI_SetGraphicStatus();
 	}
 }

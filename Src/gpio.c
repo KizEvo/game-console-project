@@ -7,6 +7,7 @@
 
 #include <stm32f1xx.h>
 #include "gpio.h"
+#include "timer.h"
 
 /************ DESCRIPTION *************
  * Configure GPIOx

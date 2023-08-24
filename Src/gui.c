@@ -1,0 +1,192 @@
+/*
+ * gui.c
+ *
+ *  Created on: Aug 22, 2023
+ *      Author: Nguyen Duc Phu
+ */
+
+#include <stm32f1xx.h>
+#include "gui.h"
+#include "interrupt.h"
+#include "lcd.h"
+#include "gpio.h"
+#include "timer.h"
+
+// Screen traversal history, with new screen selected
+// the previous screen will be placed here
+static uint8_t screenHistory[SCREEN_HISTORY_MAX] = {0};
+// Screen index
+static uint8_t screenIndex = 0;
+// Pointer points to main screen by default
+static uint8_t screenPointer = GUI_MAIN_SCREEN;
+
+// Select options, with new screen selected the previous screen options
+// will be cleared and the new one will be placed here
+static uint8_t selectOptions[SELECT_OPTIONS_MAX] = {0};
+// Select options pointer
+static uint8_t selectPointer = 0;
+// Selected options
+static uint8_t selectedOption = 0;
+
+// Graphic variables
+static uint8_t prevSelectPointer = 1;
+static uint8_t isFirstGraphicUpdate = 0;
+
+void GUI_ScreenSelection(void){
+	switch(screenPointer)
+	{
+		case GUI_MAIN_SCREEN:
+			GUI_MainScreen();
+			break;
+		case GUI_SCREEN_GAMES:
+			GUI_GamesScreen();
+			break;
+		case GUI_SCREEN_SETTINGS:
+			GUI_SettingsScreen();
+			break;
+		default:
+			break;
+	}
+}
+
+void GUI_UpdatePointers(void){
+	// Move pointer on LCD up
+	if(flagBtnAction2) {
+		if(selectPointer > 0) selectPointer--;
+		if(selectPointer + 1 == 5) GUI_ClearGraphicStatus();
+		EXTI_ClearIRQFlag(&flagBtnAction2);
+	}
+	// Move pointer on LCD down
+	else if(flagBtnAction3) {
+		if(selectOptions[selectPointer + 1] > 0) selectPointer++;
+		if(selectPointer - 1 == 4) GUI_ClearGraphicStatus();
+		EXTI_ClearIRQFlag(&flagBtnAction3);
+	}
+	// Select / OK an option
+	else if(flagBtnAction0) {
+		if(!((selectOptions[selectPointer] & 1 << 7) == 0)) {
+			screenHistory[screenIndex++] = screenPointer;
+			screenPointer = selectOptions[selectPointer];
+			selectPointer = 0;
+			GUI_ClearGraphicStatus();
+			GUI_ClearSelectOptions();
+		} else {
+			selectedOption = selectOptions[selectPointer];
+		}
+		EXTI_ClearIRQFlag(&flagBtnAction0);
+	}
+	// Return previous screen
+	else if(flagBtnAction1){
+		if(screenIndex > 0) {
+			screenHistory[screenIndex--] = 0;
+			screenPointer = screenHistory[screenIndex];
+			selectPointer = 0;
+			GUI_ClearGraphicStatus();
+			GUI_ClearSelectOptions();
+		}
+		EXTI_ClearIRQFlag(&flagBtnAction1);
+	}
+}
+
+void GUI_UpdateLCDPointer(void){
+	if(!isFirstGraphicUpdate) {
+		// Clear previous pointer arrow
+		for(uint8_t row = 2; row <= 5; row++){
+			LCD_SetPosition(5, row);
+			LCD_WriteString(" ");
+		}
+		// When switching screen or on program startup
+		// Arrow symbol in Ybank = 1
+		LCD_SetPosition(5, 1);
+		LCD_WriteString(">");
+	} else if(prevSelectPointer != (selectPointer % 5) + 1){
+		// Move select arrow pointer
+		LCD_SetPosition(5, prevSelectPointer);
+		LCD_WriteString(" ");
+		LCD_SetPosition(5, (selectPointer % 5) + 1);
+		LCD_WriteString(">");
+	}
+
+	prevSelectPointer = (selectPointer % 5) + 1;
+}
+
+void GUI_UpdateLCDOption(char *graphicStr[], const uint8_t *options){
+	// Clear previous string on LCD
+	for(uint8_t row = 1; row <= 5; row++){
+		LCD_SetPosition(20, row);
+		// 12 spaces => (5 (column per word) * 12) = 60 < 83 (LCD_MAX_X_PIXEL)
+		// the last 3 columns are NOT cleared with each update
+		LCD_WriteString("            ");
+	}
+	// Write new string
+	for(uint8_t i = 5 * (selectPointer / 5);
+			(i < 5 * (selectPointer / 5) + 5) && (options[i] != 0); i++){
+		LCD_SetPosition(20, i + 1);
+		LCD_WriteString(graphicStr[i]);
+	}
+}
+
+void GUI_UpdateLCDScreenHeader(char *headerStr){
+	LCD_SetPosition(5, 0);
+	// 14 spaces => (5 (column per word) * 14) = 70 < 83 (LCD_MAX_X_PIXEL)
+	// Clear previous header
+	LCD_WriteString("              ");
+	LCD_SetPosition(5, 0);
+	// Write string header
+	LCD_WriteString(headerStr);
+}
+
+void GUI_ClearSelectOptions(void){
+	for(uint8_t i = 0; i < SELECT_OPTIONS_MAX; i++){
+		if(selectOptions[i] <= 0) break;
+		selectOptions[i] = 0;
+	}
+}
+
+void GUI_FillCurrentScreenOptions(const uint8_t *optionsArr){
+	// array[i] == 0 is the stop condition that the passed in array have to provide
+	for(uint8_t i = 0; optionsArr[i] != 0; i++){
+		selectOptions[i] = optionsArr[i];
+	}
+}
+
+void GUI_MainScreen(void){
+	uint8_t options[] = {GUI_SCREEN_GAMES, GUI_SCREEN_SETTINGS, 0};
+	char *graphic[] = {"Games", "Settings"};
+
+	if(!isFirstGraphicUpdate) {
+		GUI_FillCurrentScreenOptions(options);
+		GUI_UpdateLCDScreenHeader("Menu:");
+		GUI_UpdateLCDOption(graphic, options);
+	}
+}
+
+void GUI_GamesScreen(void){
+	uint8_t options[] = {GAME_SNAKE, 0};
+	char *graphic[] = {"Snake"};
+
+	if(!isFirstGraphicUpdate) {
+		GUI_FillCurrentScreenOptions(options);
+		GUI_UpdateLCDScreenHeader("Games:");
+		GUI_UpdateLCDOption(graphic, options);
+	}
+}
+
+void GUI_SettingsScreen(void){
+	uint8_t options[] = {SETTING_SOUND, SETTING_CONTRAST, 0};
+	char *graphic[] = {"Volume", "Contrast"};
+
+	if(!isFirstGraphicUpdate) {
+		GUI_FillCurrentScreenOptions(options);
+		GUI_UpdateLCDScreenHeader("Settings:");
+		GUI_UpdateLCDOption(graphic, options);
+	}
+}
+
+void GUI_SetGraphicStatus(void){
+	isFirstGraphicUpdate = 1;
+}
+
+void GUI_ClearGraphicStatus(void){
+	isFirstGraphicUpdate = 0;
+}
