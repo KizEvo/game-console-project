@@ -43,11 +43,11 @@ uint8_t prevSetY = 0;
 void LCD_Init(void){
 	Timer2_Delay(10);
 	// RESET Pin to LOW signal
-	GPIOB->BSRR |= (1 << RESET_PIN(5));
+	GPIOB->BSRR |= (1 << RESET_PIN(10));
 	// Wait 10ms
 	Timer2_Delay(10);
-	// REST Pin to HIGH signal
-	GPIOB->BSRR |= (1 << SET_PIN(5));
+	// RESET Pin to HIGH signal
+	GPIOB->BSRR |= (1 << SET_PIN(10));
 	Timer2_Delay(1000);
 
 	// Command for Function Set in extended instruction
@@ -75,13 +75,13 @@ void LCD_Init(void){
 
 void LCD_WriteCommand(const uint8_t command){
 	// DC Pin to LOW signal
-	GPIOB->BSRR |= (1 << RESET_PIN(7));
+	GPIOB->BSRR |= (1 << RESET_PIN(0));
 	// Clear SCE pin
-	GPIOB->BSRR |= (1 << RESET_PIN(6));
+	GPIOB->BSRR |= (1 << RESET_PIN(1));
 	// Write to Tx buffer
 	SPI1_WriteData(command);
 	// Set SCE pin
-	GPIOB->BSRR |= (1 << SET_PIN(6));
+	GPIOB->BSRR |= (1 << SET_PIN(1));
 }
 
 
@@ -93,13 +93,13 @@ void LCD_WriteCommand(const uint8_t command){
 
 void LCD_WriteData(const uint8_t data){
 	// DC Pin to HIGH signal
-	GPIOB->BSRR |= (1 << SET_PIN(7));
+	GPIOB->BSRR |= (1 << SET_PIN(0));
 	// Clear SCE pin
-	GPIOB->BSRR |= (1 << RESET_PIN(6));
+	GPIOB->BSRR |= (1 << RESET_PIN(1));
 	// Write to Tx buffer
 	SPI1_WriteData(data);
 	// Set SCE pin
-	GPIOB->BSRR |= (1 << SET_PIN(6));
+	GPIOB->BSRR |= (1 << SET_PIN(1));
 	// Update bufferLCD[Y][X]
 	LCD_UpdateBuffer(data);
 	// Update offset global variables

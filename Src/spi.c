@@ -72,23 +72,13 @@ void SPI2_Init(void){
 	RCC->APB1ENR |= (1 << 14);
 
 	// BR bit, serial clock baud rate F-pclk
-	SPI2->CR1 |= (0x5 << 3);
-
-	// Data frame format 8-bit
-	SPI2->CR1 &= ~(1 << 11);
-
-	// Frame format MSB first
-	SPI2->CR1 &= ~(1 << 7);
+	SPI2->CR1 |= (0x6 << 3);
 
 	// Set SSOE
 	SPI2->CR2 |= (1 << 2);
 
 	// Master mode
 	SPI2->CR1 |= (1 << 2);
-
-	// Transmit-only
-	SPI2->CR1 &= ~(1 << 10);
-	SPI2->CR1 &= ~(1 << 15);
 }
 
 

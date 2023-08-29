@@ -11,6 +11,7 @@
 #include "lcd.h"
 #include "gpio.h"
 #include "timer.h"
+#include "snake_game.h"
 
 // Screen traversal history, with new screen selected
 // the previous screen will be placed here
@@ -41,8 +42,15 @@ void GUI_ScreenSelection(void){
 		case GUI_SCREEN_GAMES:
 			GUI_GamesScreen();
 			break;
+		case GAME_SNAKE:
+			GameSnake_Start();
+			break;
 		case GUI_SCREEN_SETTINGS:
 			GUI_SettingsScreen();
+			break;
+		case SETTING_SOUND:
+			break;
+		case SETTING_CONTRAST:
 			break;
 		default:
 			break;
