@@ -16,26 +16,28 @@ void GPIOA_Init(void){
 	// Enable GPIOA clock
 	RCC->APB2ENR |= 1 << 2;
 
-	// PIN 5 & 7 as alternate function output mode push-pull
+	// PIN 0, 1, 2 & 3 as floating input mode
+	// PIN 7 & 5 as alternate function output push-pull
 	GPIOA->CRL = 0x90904444;
-
-	// Set PIN 0
-	GPIOA->BSRR |= (1 << SET_PIN(0));
 }
 
 void GPIOB_Init(void){
 	// Enable GPIOB clock
 	RCC->APB2ENR |= 1 << 3;
 
-	// PIN 5, 6 & 7 as GPIO output push-pull
-	GPIOB->CRL = 0x11100000;
+	// Enable AFIO clock
+	RCC->APB2ENR |= (1 << 0);
+	// Re-map PIN 4
+	AFIO->MAPR |= (1 << 24);
 
-	// Set PIN 5
-	GPIOB->BSRR |= (1 << SET_PIN(5));
-	// Set PIN 6
-	GPIOB->BSRR |= (1 << SET_PIN(6));
-	// Clear PIN 7
-	GPIOB->BSRR |= (1 << RESET_PIN(7));
+	// PIN 0, 1 & 10 as GPIO output push-pull
+	// PIN 4, 5 as floating input mode
+	GPIOB->CRL = 0x00440011;
+	GPIOB->CRH = 0x00000100;
+
+	GPIOB->BSRR |= (1 << SET_PIN(10));
+	GPIOB->BSRR |= (1 << SET_PIN(1));
+	GPIOB->BSRR |= (1 << RESET_PIN(0));
 }
 
 void GPIOC_Init(void){
