@@ -10,31 +10,71 @@
 #include "timer.h"
 
 /************ DESCRIPTION *************
- * Configure GPIOx
+ * Configure a GPIOx Pin
 ***************************************/
+
+void GPIO_Config(GPIO_TypeDef *GPIO, uint8_t pin, uint8_t mode, uint8_t afioPos, uint32_t remapOption){
+	uint32_t controlReg = mode & 0xF;
+
+	// AFIO re-map
+	if(afioPos != NO_REMAP){
+		RCC->APB2ENR |= (1 << 0);
+		AFIO->MAPR |= (remapOption << afioPos);
+	}
+
+	// Check if pin is in low or high register
+	if(pin <= 7){
+		GPIO->CRL &= ~(0xF << (pin * 4));
+		GPIO->CRL |= (controlReg << (pin * 4));
+	} else {
+		GPIO->CRH &= ~(0xF << ((pin - 8) * 4));
+		GPIO->CRH |= (controlReg << ((pin - 8) * 4));
+	}
+
+	// Check if mode is input pull-up/pull-down then pull-up/pull-down accordingly
+	if((mode & 0x3) == 0 && !((mode & 1 << 3) == 0)){
+		if(!((mode & 1 << 4) == 0)) GPIO->BSRR |= (1 << SET_PIN(pin));
+		else GPIO->BSRR |= (1 << RESET_PIN(pin));
+	}
+}
+
+void GPIO_EnableClock(uint8_t portPos){
+	RCC->APB2ENR |= (1 << portPos);
+}
+
+/************ DESCRIPTION *************
+ * Initialize GPIOx
+***************************************/
+
 void GPIOA_Init(void){
 	// Enable GPIOA clock
-	RCC->APB2ENR |= 1 << 2;
+	GPIO_EnableClock(RCC_APB2ENR_IOPAEN_Pos);
 
 	// PIN 0, 1, 2 & 3 as floating input mode
-	// PIN 7 & 5 as alternate function output push-pull
-	GPIOA->CRL = 0x90904444;
+	GPIO_Config(GPIOA, 0, INPUT_FLOATING, NO_REMAP, NO_REMAP);
+	GPIO_Config(GPIOA, 1, INPUT_FLOATING, NO_REMAP, NO_REMAP);
+	GPIO_Config(GPIOA, 2, INPUT_FLOATING, NO_REMAP, NO_REMAP);
+	GPIO_Config(GPIOA, 3, INPUT_FLOATING, NO_REMAP, NO_REMAP);
+
+	// PIN 5, 7 & 8 as alternate function output push-pull
+	GPIO_Config(GPIOA, 5, ALT_OUTPUT_PUSHPULL | OUTPUT_SPD_MED, NO_REMAP, NO_REMAP);
+	GPIO_Config(GPIOA, 7, ALT_OUTPUT_PUSHPULL | OUTPUT_SPD_MED, NO_REMAP, NO_REMAP);
+	GPIO_Config(GPIOA, 8, ALT_OUTPUT_PUSHPULL | OUTPUT_SPD_LOW, NO_REMAP, NO_REMAP);
 }
 
 void GPIOB_Init(void){
 	// Enable GPIOB clock
-	RCC->APB2ENR |= 1 << 3;
-
-	// Enable AFIO clock
-	RCC->APB2ENR |= (1 << 0);
-	// Re-map PIN 4
-	AFIO->MAPR |= (1 << 24);
+	GPIO_EnableClock(RCC_APB2ENR_IOPBEN_Pos);
 
 	// PIN 0, 1 & 10 as GPIO output push-pull
+	GPIO_Config(GPIOB, 0, GP_OUTPUT_PUSHPULL | OUTPUT_SPD_MED, NO_REMAP, NO_REMAP);
+	GPIO_Config(GPIOB, 1, GP_OUTPUT_PUSHPULL | OUTPUT_SPD_MED, NO_REMAP, NO_REMAP);
+	GPIO_Config(GPIOB, 10, GP_OUTPUT_PUSHPULL | OUTPUT_SPD_MED, NO_REMAP, NO_REMAP);
 	// PIN 4, 5 as floating input mode
-	GPIOB->CRL = 0x00440011;
-	GPIOB->CRH = 0x00000100;
+	GPIO_Config(GPIOB, 4, INPUT_FLOATING, AFIO_MAPR_SWJ_CFG_Pos, 1);
+	GPIO_Config(GPIOB, 5, INPUT_FLOATING, NO_REMAP, NO_REMAP);
 
+	// Pre-Set/Clear pins
 	GPIOB->BSRR |= (1 << SET_PIN(10));
 	GPIOB->BSRR |= (1 << SET_PIN(1));
 	GPIOB->BSRR |= (1 << RESET_PIN(0));
@@ -42,18 +82,16 @@ void GPIOB_Init(void){
 
 void GPIOC_Init(void){
 	// Enable GPIOC clock
-	RCC->APB2ENR |= 1 << 4;
-
+	GPIO_EnableClock(RCC_APB2ENR_IOPCEN_Pos);
 	// PIN 13 as GPIO output push-pull
-	GPIOC->CRH = 0x00200000;
-
+	GPIO_Config(GPIOC, 13, GP_OUTPUT_PUSHPULL | OUTPUT_SPD_LOW, NO_REMAP, NO_REMAP);
 	// Set PIN 13
 	GPIOB->BSRR |= (1 << SET_PIN(13));
 }
 
 /************ DESCRIPTION *************
  * Warning signal when user-defined error occurred
- * Not really effective but at least it will tell something have went wrong and need attentions
+ * Not really effective but at least it will tell something have went wrong and needed attentions
  * Only needed in development
 ***************************************/
 
