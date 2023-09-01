@@ -17,6 +17,11 @@ void Timer2_Init(void){
 	RCC->APB1ENR |= (1 << 0);
 }
 
+void Timer1_Init(void){
+	// Enable Timer1 clock
+	RCC->APB2ENR |= (1 << 11);
+}
+
 /************ DESCRIPTION *************
  * Configure Timer2 delay of 1ms
 ***************************************/
@@ -77,6 +82,53 @@ void Timer2_DelayMicro(int timeInMicrosecond){
 		TIM2->SR &= ~(1 << 0);
 	}
 
-	// Disable counter
+	// Disable timer counter
 	TIM2->CR1 &= ~(1 << 0);
+}
+
+/************ DESCRIPTION *************
+ * Configure Timer1 CH1 (PA8) in PWM mode
+ * Polarity active high
+ * Edge-aligned mode, up counting
+ * Frequency as parameter
+ * Duty cycle 50%
+***************************************/
+
+void Timer1_EnablePWM(uint16_t frequency, uint8_t dutyCyclePercent){
+
+	uint16_t prescalerValue = 1200.0;
+	double arrValue = (1.0 / frequency) * (48000000.0 / prescalerValue);
+
+	// ARR value (frequency)
+	TIM1->ARR = (uint16_t)arrValue;
+	// Pre-scaler value
+	TIM1->PSC = prescalerValue - 1;
+	// CCR1 value (duty cycle)
+	TIM1->CCR1 = (uint16_t)(arrValue * (dutyCyclePercent / 100.0));
+	// PWM mode 1 in CH1
+	TIM1->CCMR1 |= (0x6 << 4);
+	// Enable CH1 pre-load register
+	TIM1->CCMR1 |= (1 << 3);
+	// Auto-reload pre-load enable
+	TIM1->CR1 |= (1 << 7);
+
+	// Initialize all the registers
+	TIM1->EGR |= (1 << 0);
+
+	// Capture/Compare 1 output enable
+	TIM1->CCER |= (1 << 0);
+	// Set MOE bit
+	TIM1->BDTR |= (1 << 15);
+
+	// Enable counter
+	TIM1->CR1 |= (1 << 0);
+}
+
+void Timer1_DisablePWM(void){
+	// Capture/Compare 1 output disable
+	TIM1->CCER &= ~(1 << 0);
+	// Clear MOE bit
+	TIM1->BDTR &= ~(1 << 15);
+	// Disable timer counter
+	TIM1->CR1 &= ~(1 << 0);
 }

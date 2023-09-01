@@ -33,6 +33,7 @@ int main(void){
 	Clock_Init();
 
 	Timer2_Init();
+	Timer1_Init();
 
 	GPIOA_Init();
 	GPIOB_Init();
@@ -45,7 +46,17 @@ int main(void){
 	NVIC_Enable();
 
 	LCD_Init();
-//
+
+	Timer1_EnablePWM(1500, 20);
+
+	Timer2_Delay(5000);
+
+	Timer1_DisablePWM();
+
+	Timer2_Delay(5000);
+
+	Timer1_EnablePWM(1500, 20);
+
 //	GUI_UpdateLCDPointer();
 //	GUI_ScreenSelection();
 //	GUI_SetGraphicStatus();
