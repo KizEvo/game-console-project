@@ -13,13 +13,22 @@
  * Configure a GPIOx Pin
 ***************************************/
 
-void GPIO_Config(GPIO_TypeDef *GPIO, uint8_t pin, uint8_t mode, uint8_t afioPos, uint32_t remapOption){
+void GPIO_Config(GPIO_TypeDef *GPIO, uint8_t pin, uint8_t mode, uint32_t afioMap, uint32_t remapOption){
 	uint32_t controlReg = mode & 0xF;
 
 	// AFIO re-map
-	if(afioPos != NO_REMAP){
-		RCC->APB2ENR |= (1 << 0);
-		AFIO->MAPR |= (remapOption << afioPos);
+	if(afioMap != NO_REMAP){
+		uint32_t tempAfioMap = afioMap;
+		uint8_t position = 0;
+		while((afioMap & 1) == 0){
+			afioMap = afioMap >> 1;
+			position++;
+		}
+		if(!((AFIO->MAPR & tempAfioMap) == (remapOption << position))){
+			RCC->APB2ENR |= (1 << 0);
+			AFIO->MAPR &= ~tempAfioMap;
+			AFIO->MAPR |= (remapOption << position);
+		}
 	}
 
 	// Check if pin is in low or high register
@@ -50,11 +59,10 @@ void GPIOA_Init(void){
 	// Enable GPIOA clock
 	GPIO_EnableClock(RCC_APB2ENR_IOPAEN_Pos);
 
-	// PIN 0, 1, 2 & 3 as floating input mode
-	GPIO_Config(GPIOA, 0, INPUT_FLOATING, NO_REMAP, NO_REMAP);
+	// PIN 1, 2 & 15 as floating input mode
 	GPIO_Config(GPIOA, 1, INPUT_FLOATING, NO_REMAP, NO_REMAP);
 	GPIO_Config(GPIOA, 2, INPUT_FLOATING, NO_REMAP, NO_REMAP);
-	GPIO_Config(GPIOA, 3, INPUT_FLOATING, NO_REMAP, NO_REMAP);
+	GPIO_Config(GPIOA, 15, INPUT_FLOATING, AFIO_MAPR_SWJ_CFG, 2);
 
 	// PIN 5, 7 & 8 as alternate function output push-pull
 	GPIO_Config(GPIOA, 5, ALT_OUTPUT_PUSHPULL | OUTPUT_SPD_MED, NO_REMAP, NO_REMAP);
@@ -70,8 +78,9 @@ void GPIOB_Init(void){
 	GPIO_Config(GPIOB, 0, GP_OUTPUT_PUSHPULL | OUTPUT_SPD_MED, NO_REMAP, NO_REMAP);
 	GPIO_Config(GPIOB, 1, GP_OUTPUT_PUSHPULL | OUTPUT_SPD_MED, NO_REMAP, NO_REMAP);
 	GPIO_Config(GPIOB, 10, GP_OUTPUT_PUSHPULL | OUTPUT_SPD_MED, NO_REMAP, NO_REMAP);
-	// PIN 4, 5 as floating input mode
-	GPIO_Config(GPIOB, 4, INPUT_FLOATING, AFIO_MAPR_SWJ_CFG_Pos, 1);
+	// PIN 3, 4 & 5 as floating input mode
+	GPIO_Config(GPIOB, 3, INPUT_FLOATING, AFIO_MAPR_SWJ_CFG, 2);
+	GPIO_Config(GPIOB, 4, INPUT_FLOATING, AFIO_MAPR_SWJ_CFG, 2);
 	GPIO_Config(GPIOB, 5, INPUT_FLOATING, NO_REMAP, NO_REMAP);
 
 	// Pre-Set/Clear pins

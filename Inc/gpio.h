@@ -31,7 +31,7 @@ void GPIOA_Init(void);
 void GPIOB_Init(void);
 void GPIOC_Init(void);
 
-void GPIO_Config(GPIO_TypeDef *GPIO, uint8_t pin, uint8_t mode, uint8_t afioPos, uint32_t remapOption);
+void GPIO_Config(GPIO_TypeDef *GPIO, uint8_t pin, uint8_t mode, uint32_t afioMap, uint32_t remapOption);
 void GPIO_EnableClock(uint8_t portPos);
 
 void GPIOC_Warning(void);
