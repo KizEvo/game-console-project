@@ -66,7 +66,7 @@ int main(void){
 //		GUI_UpdateLCDPointer();
 //		GUI_ScreenSelection();
 //		GUI_SetGraphicStatus();
-		if(flagBtnAction5){
+		if(flagBtnAction1){
 			GPIOC->BSRR |= (1 << RESET_PIN(13));
 			Timer2_Delay(500);
 			GPIOC->BSRR |= (1 << SET_PIN(13));
@@ -75,7 +75,7 @@ int main(void){
 			Timer2_Delay(500);
 			GPIOC->BSRR |= (1 << SET_PIN(13));
 			Timer2_Delay(500);
-			EXTI_ClearIRQFlag(&flagBtnAction5);
+			EXTI_ClearIRQFlag(&flagBtnAction1);
 		}
 	}
 }

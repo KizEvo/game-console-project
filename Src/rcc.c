@@ -11,6 +11,9 @@
 /************ DESCRIPTION *************
  * Configure clock pre-scalers
  * Setup PLL as system clock
+ * System clock: 48*10^6 (HSI / 2 * 12)
+ * APB1 = System clock / 2
+ * APB2 = AHB = System clock
 ***************************************/
 
 void Clock_Init(void){

@@ -90,13 +90,13 @@ void Timer2_DelayMicro(int timeInMicrosecond){
  * Configure Timer1 CH1 (PA8) in PWM mode
  * Polarity active high
  * Edge-aligned mode, up counting
- * Frequency as parameter
- * Duty cycle 50%
+ * Parameters: frequency, duty cycle percentage
 ***************************************/
 
 void Timer1_EnablePWM(uint16_t frequency, uint8_t dutyCyclePercent){
 
 	uint16_t prescalerValue = 1200.0;
+	// 48*10^6 = APB2ENR Timer clock (check rcc.c for more details)
 	double arrValue = (1.0 / frequency) * (48000000.0 / prescalerValue);
 
 	// ARR value (frequency)
