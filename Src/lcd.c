@@ -43,11 +43,11 @@ uint8_t prevSetY = 0;
 void LCD_Init(void){
 	Timer2_Delay(10);
 	// RESET Pin to LOW signal
-	GPIOB->BSRR |= (1 << RESET_PIN(10));
+	GPIOB->BSRR |= (1 << RESET_PIN(2));
 	// Wait 10ms
 	Timer2_Delay(10);
 	// RESET Pin to HIGH signal
-	GPIOB->BSRR |= (1 << SET_PIN(10));
+	GPIOB->BSRR |= (1 << SET_PIN(2));
 	Timer2_Delay(1000);
 
 	// Command for Function Set in extended instruction

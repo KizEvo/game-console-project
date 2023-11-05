@@ -47,35 +47,40 @@ int main(void){
 
 	LCD_Init();
 
-	Timer1_EnablePWM(1500, 20);
-
-	Timer2_Delay(5000);
-
-	Timer1_DisablePWM();
-
-	Timer2_Delay(5000);
-
-	Timer1_EnablePWM(1500, 20);
+//	Buzzer
+//	Timer1_EnablePWM(1500, 20);
+//
+//	Timer2_Delay(5000);
+//
+//	Timer1_DisablePWM();
+//
+//	Timer2_Delay(5000);
+//
+//	Timer1_EnablePWM(1500, 20);
 
 //	GUI_UpdateLCDPointer();
 //	GUI_ScreenSelection();
 //	GUI_SetGraphicStatus();
-
+	LCD_WriteString("Hello world");
 	while(1){
+		GPIOC->BSRR |= (1 << RESET_PIN(13));
+		Timer2_Delay(400);
+		GPIOC->BSRR |= (1 << SET_PIN(13));
+		Timer2_Delay(400);
 //		GUI_UpdatePointers();
 //		GUI_UpdateLCDPointer();
 //		GUI_ScreenSelection();
 //		GUI_SetGraphicStatus();
-		if(flagBtnAction1){
-			GPIOC->BSRR |= (1 << RESET_PIN(13));
-			Timer2_Delay(500);
-			GPIOC->BSRR |= (1 << SET_PIN(13));
-			Timer2_Delay(500);
-			GPIOC->BSRR |= (1 << RESET_PIN(13));
-			Timer2_Delay(500);
-			GPIOC->BSRR |= (1 << SET_PIN(13));
-			Timer2_Delay(500);
-			EXTI_ClearIRQFlag(&flagBtnAction1);
-		}
+//		if(flagBtnAction1){
+//			GPIOC->BSRR |= (1 << RESET_PIN(13));
+//			Timer2_Delay(500);
+//			GPIOC->BSRR |= (1 << SET_PIN(13));
+//			Timer2_Delay(500);
+//			GPIOC->BSRR |= (1 << RESET_PIN(13));
+//			Timer2_Delay(500);
+//			GPIOC->BSRR |= (1 << SET_PIN(13));
+//			Timer2_Delay(500);
+//			EXTI_ClearIRQFlag(&flagBtnAction1);
+//		}
 	}
 }
