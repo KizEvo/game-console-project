@@ -17,7 +17,8 @@ uint8_t flagBtnAction5 = 0;
 
 /************ DESCRIPTION *************
  * Initialize hardware external interrupt
- * Pin 0, 1, 2 & 3 of port A
+ * Pin 1, 2 and 15 of port A
+ * Pin 3, 4 and 5 of port B
 ***************************************/
 
 void EXTI_Init(void){
@@ -39,6 +40,13 @@ void EXTI_Init(void){
 	EXTI->IMR |= 0x3E << 0;
 	EXTI->IMR |= (1 << 15);
 
+}
+
+/************ DESCRIPTION *************
+ * Set interrupt priority
+***************************************/
+void NVIC_SetInterruptPriority(uint32_t interruptPos, uint32_t priority){
+    NVIC->IP[interruptPos] = (uint8_t)((priority << 4U) & (uint32_t)0xFFU);
 }
 
 /************ DESCRIPTION *************
@@ -71,37 +79,46 @@ void NVIC_Enable(void){
 void EXTI1_IRQHandler(void){
 	flagBtnAction1 = 1;
 	// Clear pending register
-	EXTI->PR |= 1 << 1;
+	EXTI->PR = 1 << 1;
 }
 
 void EXTI2_IRQHandler(void){
 	flagBtnAction2 = 1;
 	// Clear pending register
-	EXTI->PR |= 1 << 2;
+	EXTI->PR = 1 << 2;
 }
 
 void EXTI3_IRQHandler(void){
 	flagBtnAction3 = 1;
 	// Clear pending register
-	EXTI->PR |= 1 << 3;
+	EXTI->PR = 1 << 3;
 }
 
 void EXTI4_IRQHandler(void){
 	flagBtnAction4 = 1;
 	// Clear pending register
-	EXTI->PR |= 1 << 4;
+	EXTI->PR = 1 << 4;
 }
 
 void EXTI9_5_IRQHandler(void){
 	flagBtnAction5 = 1;
 	// Clear pending register
-	EXTI->PR |= 1 << 5;
+	EXTI->PR = 1 << 5;
 }
 
 void EXTI15_10_IRQHandler(void){
 	flagBtnAction0 = 1;
 	// Clear pending register
-	EXTI->PR |= 1 << 15;
+	EXTI->PR = 1 << 15;
+}
+
+void EXTI_ClearAllIRQFlag(void){
+	flagBtnAction0 = 0;
+	flagBtnAction1 = 0;
+	flagBtnAction2 = 0;
+	flagBtnAction3 = 0;
+	flagBtnAction4 = 0;
+	flagBtnAction5 = 0;
 }
 
 void EXTI_ClearIRQFlag(uint8_t *flag){

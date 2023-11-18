@@ -87,7 +87,7 @@ void Timer2_DelayMicro(int timeInMicrosecond){
 }
 
 /************ DESCRIPTION *************
- * Configure Timer1 CH1 (PA8) in PWM mode
+ * Configure Timer1 CH3 (PB15) in PWM mode
  * Polarity active high
  * Edge-aligned mode, up counting
  * Parameters: frequency, duty cycle percentage
@@ -103,20 +103,20 @@ void Timer1_EnablePWM(uint16_t frequency, uint8_t dutyCyclePercent){
 	TIM1->ARR = (uint16_t)arrValue;
 	// Pre-scaler value
 	TIM1->PSC = prescalerValue - 1;
-	// CCR1 value (duty cycle)
-	TIM1->CCR1 = (uint16_t)(arrValue * (dutyCyclePercent / 100.0));
-	// PWM mode 1 in CH1
-	TIM1->CCMR1 |= (0x6 << 4);
-	// Enable CH1 pre-load register
-	TIM1->CCMR1 |= (1 << 3);
+	// CCR3 value (duty cycle)
+	TIM1->CCR3 = (uint16_t)(arrValue * (dutyCyclePercent / 100.0));
+	// PWM mode 1 in CH3
+	TIM1->CCMR2 |= (0x6 << 4);
+	// Enable CH3 pre-load register
+	TIM1->CCMR2 |= (1 << 3);
 	// Auto-reload pre-load enable
 	TIM1->CR1 |= (1 << 7);
 
 	// Initialize all the registers
 	TIM1->EGR |= (1 << 0);
 
-	// Capture/Compare 1 output enable
-	TIM1->CCER |= (1 << 0);
+	// Capture/Compare 3N output enable
+	TIM1->CCER |= (1 << 10);
 	// Set MOE bit
 	TIM1->BDTR |= (1 << 15);
 

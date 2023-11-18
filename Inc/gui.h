@@ -34,6 +34,8 @@ void GUI_GamesScreen(void);
 void GUI_SettingsScreen(void);
 void GUI_SnakeGame(void);
 
+void GUI_ResetAllState(void);
+void GUI_FirstUpdate(void);
 void GUI_UpdateLCDScreenHeader(char *headerStr);
 void GUI_UpdateLCDOption(char *graphicStr[], const uint8_t *options);
 void GUI_UpdateLCDPointer(void);

@@ -64,10 +64,9 @@ void GPIOA_Init(void){
 	GPIO_Config(GPIOA, 2, INPUT_FLOATING, NO_REMAP, NO_REMAP);
 	GPIO_Config(GPIOA, 15, INPUT_FLOATING, AFIO_MAPR_SWJ_CFG, 2);
 
-	// PIN 5, 7 & 8 as alternate function output push-pull
+	// PIN 5 & 7 as alternate function output push-pull
 	GPIO_Config(GPIOA, 5, ALT_OUTPUT_PUSHPULL | OUTPUT_SPD_MED, NO_REMAP, NO_REMAP);
 	GPIO_Config(GPIOA, 7, ALT_OUTPUT_PUSHPULL | OUTPUT_SPD_MED, NO_REMAP, NO_REMAP);
-	GPIO_Config(GPIOA, 8, ALT_OUTPUT_PUSHPULL | OUTPUT_SPD_LOW, NO_REMAP, NO_REMAP);
 }
 
 void GPIOB_Init(void){
@@ -82,6 +81,8 @@ void GPIOB_Init(void){
 	GPIO_Config(GPIOB, 3, INPUT_FLOATING, AFIO_MAPR_SWJ_CFG, 2);
 	GPIO_Config(GPIOB, 4, INPUT_FLOATING, AFIO_MAPR_SWJ_CFG, 2);
 	GPIO_Config(GPIOB, 5, INPUT_FLOATING, NO_REMAP, NO_REMAP);
+	// PIN 15 as alternate function output push-pull
+	GPIO_Config(GPIOB, 15, ALT_OUTPUT_PUSHPULL | OUTPUT_SPD_LOW, NO_REMAP, NO_REMAP);
 
 	// Pre-Set/Clear pins
 	GPIOB->BSRR |= (1 << SET_PIN(10));

@@ -28,6 +28,7 @@
 #include "interrupt.h"
 // GUI header files
 #include "gui.h"
+#include "snake_game.h"
 
 int main(void){
 	Clock_Init();
@@ -47,31 +48,25 @@ int main(void){
 
 	LCD_Init();
 
+	Timer2_Delay(1000);
 //	Buzzer
-//	Timer1_EnablePWM(1500, 20);
-//
-//	Timer2_Delay(5000);
-//
-//	Timer1_DisablePWM();
-//
-//	Timer2_Delay(5000);
-//
-//	Timer1_EnablePWM(1500, 20);
+	Timer1_EnablePWM(1500, 20);
 
-//	GUI_UpdateLCDPointer();
-//	GUI_ScreenSelection();
-//	GUI_SetGraphicStatus();
-	LCD_WriteString("Hello world");
+	Timer2_Delay(5000);
+
+	Timer1_DisablePWM();
+
+	Timer2_Delay(5000);
+
+	Timer1_EnablePWM(700, 20);
+
+//	GUI_FirstUpdate();
 	while(1){
-		GPIOC->BSRR |= (1 << RESET_PIN(13));
-		Timer2_Delay(400);
-		GPIOC->BSRR |= (1 << SET_PIN(13));
-		Timer2_Delay(400);
 //		GUI_UpdatePointers();
 //		GUI_UpdateLCDPointer();
 //		GUI_ScreenSelection();
 //		GUI_SetGraphicStatus();
-//		if(flagBtnAction1){
+//		if(flagBtnAction0){
 //			GPIOC->BSRR |= (1 << RESET_PIN(13));
 //			Timer2_Delay(500);
 //			GPIOC->BSRR |= (1 << SET_PIN(13));
@@ -79,8 +74,32 @@ int main(void){
 //			GPIOC->BSRR |= (1 << RESET_PIN(13));
 //			Timer2_Delay(500);
 //			GPIOC->BSRR |= (1 << SET_PIN(13));
-//			Timer2_Delay(500);
-//			EXTI_ClearIRQFlag(&flagBtnAction1);
+//			EXTI_ClearIRQFlag(&flagBtnAction0);
+//		} else if(flagBtnAction3){
+//			GPIOC->BSRR |= (1 << RESET_PIN(13));
+//			Timer2_Delay(200);
+//			GPIOC->BSRR |= (1 << SET_PIN(13));
+//			Timer2_Delay(200);
+//			GPIOC->BSRR |= (1 << RESET_PIN(13));
+//			Timer2_Delay(200);
+//			GPIOC->BSRR |= (1 << SET_PIN(13));
+//			Timer2_Delay(200);
+//			GPIOC->BSRR |= (1 << RESET_PIN(13));
+//			EXTI_ClearIRQFlag(&flagBtnAction3);
+//		}
+//		else if (flagBtnAction4) {
+//			GPIOC->BSRR |= (1 << RESET_PIN(13));
+//			Timer2_Delay(200);
+//			GPIOC->BSRR |= (1 << SET_PIN(13));
+//			Timer2_Delay(200);
+//			EXTI_ClearIRQFlag(&flagBtnAction4);
+//		} else if(flagBtnAction5){
+//			GPIOC->BSRR |= (1 << RESET_PIN(13));
+//			Timer2_Delay(200);
+//			GPIOC->BSRR |= (1 << SET_PIN(13));
+//			Timer2_Delay(200);
+//			GPIOC->BSRR |= (1 << RESET_PIN(13));
+//			EXTI_ClearIRQFlag(&flagBtnAction5);
 //		}
 	}
 }

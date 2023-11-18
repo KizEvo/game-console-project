@@ -44,6 +44,8 @@ void GUI_ScreenSelection(void){
 			break;
 		case GAME_SNAKE:
 			GameSnake_Start();
+			GUI_ResetAllState();
+			GUI_FirstUpdate();
 			break;
 		case GUI_SCREEN_SETTINGS:
 			GUI_SettingsScreen();
@@ -57,24 +59,50 @@ void GUI_ScreenSelection(void){
 	}
 }
 
+void GUI_ResetAllState(void){
+	for(uint8_t i = 0; i < SCREEN_HISTORY_MAX; i++)
+		screenHistory[i] = 0;
+	// Screen index
+	screenIndex = 0;
+	// Pointer points to main screen by default
+	screenPointer = GUI_MAIN_SCREEN;
+
+	for(uint8_t i = 0; i < SELECT_OPTIONS_MAX; i++)
+		selectOptions[i] = 0;
+	// Select options pointer
+	selectPointer = 0;
+	// Selected options
+	selectedOption = 0;
+
+	// Graphic variables
+	prevSelectPointer = 1;
+	isFirstGraphicUpdate = 0;
+}
+
+void GUI_FirstUpdate(void){
+	GUI_UpdateLCDPointer();
+	GUI_ScreenSelection();
+	GUI_SetGraphicStatus();
+}
+
 void GUI_UpdatePointers(void){
 	// Move pointer on LCD up
-	if(flagBtnAction2) {
+	if(flagBtnAction3) {
 		if(selectPointer > 0) selectPointer--;
 		if(selectPointer + 1 == 5) {
 			GUI_ClearGraphicStatus();
 			selectPointer = 0;
 		}
-		EXTI_ClearIRQFlag(&flagBtnAction2);
-	}
-	// Move pointer on LCD down
-	else if(flagBtnAction3) {
-		if(selectOptions[selectPointer + 1] > 0) selectPointer++;
-		if(selectPointer - 1 == 4) GUI_ClearGraphicStatus();
 		EXTI_ClearIRQFlag(&flagBtnAction3);
 	}
+	// Move pointer on LCD down
+	else if(flagBtnAction4) {
+		if(selectOptions[selectPointer + 1] > 0) selectPointer++;
+		if(selectPointer - 1 == 4) GUI_ClearGraphicStatus();
+		EXTI_ClearIRQFlag(&flagBtnAction4);
+	}
 	// Select / OK an option
-	else if(flagBtnAction0) {
+	else if(flagBtnAction5) {
 		if(!((selectOptions[selectPointer] & 1 << 7) == 0)) {
 			screenHistory[screenIndex++] = screenPointer;
 			screenPointer = selectOptions[selectPointer];
@@ -84,10 +112,10 @@ void GUI_UpdatePointers(void){
 		} else {
 			selectedOption = selectOptions[selectPointer];
 		}
-		EXTI_ClearIRQFlag(&flagBtnAction0);
+		EXTI_ClearIRQFlag(&flagBtnAction5);
 	}
 	// Return previous screen
-	else if(flagBtnAction1){
+	else if(flagBtnAction0){
 		if(screenIndex > 0) {
 			screenHistory[screenIndex--] = 0;
 			screenPointer = screenHistory[screenIndex];
@@ -95,7 +123,7 @@ void GUI_UpdatePointers(void){
 			GUI_ClearGraphicStatus();
 			GUI_ClearSelectOptions();
 		}
-		EXTI_ClearIRQFlag(&flagBtnAction1);
+		EXTI_ClearAllIRQFlag();
 	}
 }
 
@@ -163,8 +191,8 @@ void GUI_FillCurrentScreenOptions(const uint8_t *optionsArr){
 }
 
 void GUI_MainScreen(void){
-	uint8_t options[] = {GUI_SCREEN_GAMES, GUI_SCREEN_SETTINGS, 1, 2, 3, 4, 5, 0};
-	char *graphic[] = {"Games", "Settings", "One", "Two", "Three", "Four", "Five"};
+	uint8_t options[] = {GUI_SCREEN_GAMES, GUI_SCREEN_SETTINGS, 0};
+	char *graphic[] = {"Games", "Settings"};
 
 	if(!isFirstGraphicUpdate) {
 		GUI_FillCurrentScreenOptions(options);

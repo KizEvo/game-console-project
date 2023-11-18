@@ -14,92 +14,104 @@
 #include "gpio.h"
 
 void GameSnake_Start(void){
-	uint8_t headX = 4;
-	uint8_t headY = 4;
+	uint8_t again = 1;
 
-	uint8_t tailX = 0;
-	uint8_t tailY = 0;
+	while(again){
+		uint8_t headX = 4;
+		uint8_t headY = 4;
 
-	uint8_t pathX = 0;
-	uint8_t pathY = 0;
+		uint8_t tailX = 0;
+		uint8_t tailY = 0;
 
-	uint16_t appleXY = 0;
+		uint8_t pathX = 0;
+		uint8_t pathY = 0;
 
-	uint8_t stage = 0;
-	uint8_t speed = 200;
-	uint8_t increaseSnakelength = 0;
+		uint16_t appleXY = 0;
 
-	uint8_t directionFlag = GAMESNAKE_TURNRIGHT;
-	uint8_t appleFlag = 0;
+		uint8_t stage = 0;
+		uint8_t speed = 200;
+		uint8_t increaseSnakelength = 0;
 
-	LCD_ClearScreen();
+		uint8_t directionFlag = GAMESNAKE_TURNRIGHT;
+		uint8_t appleFlag = 0;
 
-	Timer2_Delay(100);
+		LCD_ClearScreen();
 
-	GameSnake_GUI();
+		Timer2_Delay(100);
 
-	for(uint8_t snakeLength = 0; snakeLength < 5; snakeLength++){
-		GameSnake_UpdatePositionHead(&directionFlag, &appleFlag, &headX, &headY);
-		GameSnake_SavePathTraversal(&headX, &headY, &pathX, &pathY);
-	}
+		GameSnake_GUI();
 
-	while(1){
-		if(!appleFlag){
-			GPIOC->BSRR |= (1 << SET_PIN(13));
-			appleXY = GameSnake_CreateApple(&appleFlag);
-			if(++stage >= 5) {
-				stage = 0;
-				if(speed - 10 >= 170) speed -= 10;
-			}
-		}
-
-		if(!GameSnake_UpdatePositionHead(&directionFlag, &appleFlag, &headX, &headY)) break;
-		if(appleFlag) GameSnake_SavePathTraversal(&headX, &headY, &pathX, &pathY);
-
-		if(!appleFlag) {
-			GPIOC->BSRR |= (1 << RESET_PIN(13));
-			GameSnake_RemoveApple(appleXY >> 8, appleXY & 0x00FF);
-			LCD_DrawPixel(headX, headY);
+		for(uint8_t snakeLength = 0; snakeLength < 5; snakeLength++){
+			GameSnake_UpdatePositionHead(&directionFlag, &appleFlag, &headX, &headY);
 			GameSnake_SavePathTraversal(&headX, &headY, &pathX, &pathY);
-			increaseSnakelength = 3;
 		}
 
-		if(increaseSnakelength > 0) increaseSnakelength--;
-		if(increaseSnakelength <= 0) GameSnake_UpdatePositionTail(&tailX, &tailY);
+		while(1){
+			if(!appleFlag){
+				GPIOC->BSRR |= (1 << SET_PIN(13));
+				appleXY = GameSnake_CreateApple(&appleFlag);
+				if(++stage >= 5) {
+					stage = 0;
+					if(speed - 10 >= 170) speed -= 10;
+				}
+			}
 
+			if(!GameSnake_UpdatePositionHead(&directionFlag, &appleFlag, &headX, &headY)) break;
+			if(appleFlag) GameSnake_SavePathTraversal(&headX, &headY, &pathX, &pathY);
+
+			if(!appleFlag) {
+				GPIOC->BSRR |= (1 << RESET_PIN(13));
+				GameSnake_RemoveApple(appleXY >> 8, appleXY & 0x00FF);
+				LCD_DrawPixel(headX, headY);
+				GameSnake_SavePathTraversal(&headX, &headY, &pathX, &pathY);
+				increaseSnakelength = 3;
+			}
+
+			if(increaseSnakelength > 0) increaseSnakelength--;
+			if(increaseSnakelength <= 0) GameSnake_UpdatePositionTail(&tailX, &tailY);
+
+			if(flagBtnAction1) {
+				if(directionFlag != GAMESNAKE_TURNRIGHT)
+					directionFlag = GAMESNAKE_TURNLEFT;
+				EXTI_ClearIRQFlag(&flagBtnAction1);
+			}
+			else if(flagBtnAction2) {
+				if(directionFlag != GAMESNAKE_TURNLEFT)
+					directionFlag = GAMESNAKE_TURNRIGHT;
+				EXTI_ClearIRQFlag(&flagBtnAction2);
+			}
+			else if(flagBtnAction3) {
+				if(directionFlag != GAMESNAKE_MOVEDOWN)
+					directionFlag = GAMESNAKE_MOVEUP;
+				EXTI_ClearIRQFlag(&flagBtnAction3);
+			}
+			else if(flagBtnAction4) {
+				if(directionFlag != GAMESNAKE_MOVEUP)
+					directionFlag = GAMESNAKE_MOVEDOWN;
+				EXTI_ClearIRQFlag(&flagBtnAction4);
+			}
+			Timer2_Delay(speed);
+		}
+
+		EXTI_ClearIRQFlag(&flagBtnAction5);
+		EXTI_ClearIRQFlag(&flagBtnAction0);
+
+		LCD_ClearScreen();
+		LCD_SetPosition(5, 0);
+		LCD_WriteString("You lose!");
+		LCD_SetPosition(5, 1);
+		LCD_WriteString("Try again ?");
+		LCD_SetPosition(0, 2);
+		LCD_WriteString("Yes(L)/No(R)");
+		while(!flagBtnAction5 && !flagBtnAction0);
 		if(flagBtnAction0) {
-			if(directionFlag != GAMESNAKE_TURNRIGHT)
-				directionFlag = GAMESNAKE_TURNLEFT;
-			EXTI_ClearIRQFlag(&flagBtnAction0);
-		}
-		else if(flagBtnAction1) {
-			if(directionFlag != GAMESNAKE_TURNLEFT)
-				directionFlag = GAMESNAKE_TURNRIGHT;
-			EXTI_ClearIRQFlag(&flagBtnAction1);
-		}
-		else if(flagBtnAction2) {
-			if(directionFlag != GAMESNAKE_MOVEDOWN)
-				directionFlag = GAMESNAKE_MOVEUP;
-			EXTI_ClearIRQFlag(&flagBtnAction2);
-		}
-		else if(flagBtnAction3) {
-			if(directionFlag != GAMESNAKE_MOVEUP)
-				directionFlag = GAMESNAKE_MOVEDOWN;
-			EXTI_ClearIRQFlag(&flagBtnAction3);
+			again = 0;
+			LCD_ClearScreen();
 		}
 
-		Timer2_Delay(speed);
+		Timer2_Delay(50);
+		EXTI_ClearAllIRQFlag();
 	}
-
-	LCD_ClearScreen();
-	LCD_SetPosition(1, 1);
-	LCD_WriteData(0xFF);
-	LCD_WriteData(0xFF);
-
-	LCD_WriteData(0x33);
-	LCD_WriteData(0x33);
-
-	while(1);
 }
 
 void GameSnake_GUI(void){
