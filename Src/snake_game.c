@@ -14,6 +14,7 @@
 #include "gpio.h"
 
 void GameSnake_Start(void){
+	EXTI_ClearAllIRQFlag();
 	uint8_t again = 1;
 
 	while(again){

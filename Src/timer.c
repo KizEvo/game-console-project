@@ -94,7 +94,15 @@ void Timer2_DelayMicro(int timeInMicrosecond){
 ***************************************/
 
 void Timer1_EnablePWM(uint16_t frequency, uint8_t dutyCyclePercent){
+	// Clear previous PWM
+	// Capture/Compare 1 output disable
+	TIM1->CCER &= ~(1 << 0);
+	// Clear MOE bit
+	TIM1->BDTR &= ~(1 << 15);
+	// Disable timer counter
+	TIM1->CR1 &= ~(1 << 0);
 
+	// Start new PWM
 	uint16_t prescalerValue = 1200.0;
 	// 48*10^6 = APB2ENR Timer clock (check rcc.c for more details)
 	double arrValue = (1.0 / frequency) * (48000000.0 / prescalerValue);

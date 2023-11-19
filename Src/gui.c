@@ -12,6 +12,7 @@
 #include "gpio.h"
 #include "timer.h"
 #include "snake_game.h"
+#include "sound.h"
 
 // Screen traversal history, with new screen selected
 // the previous screen will be placed here
@@ -93,13 +94,15 @@ void GUI_UpdatePointers(void){
 			GUI_ClearGraphicStatus();
 			selectPointer = 0;
 		}
-		EXTI_ClearIRQFlag(&flagBtnAction3);
+		EXTI_ClearAllIRQFlag();
+		Sound_MenuNavigate();
 	}
 	// Move pointer on LCD down
 	else if(flagBtnAction4) {
 		if(selectOptions[selectPointer + 1] > 0) selectPointer++;
 		if(selectPointer - 1 == 4) GUI_ClearGraphicStatus();
-		EXTI_ClearIRQFlag(&flagBtnAction4);
+		EXTI_ClearAllIRQFlag();
+		Sound_MenuNavigate();
 	}
 	// Select / OK an option
 	else if(flagBtnAction5) {
@@ -112,7 +115,8 @@ void GUI_UpdatePointers(void){
 		} else {
 			selectedOption = selectOptions[selectPointer];
 		}
-		EXTI_ClearIRQFlag(&flagBtnAction5);
+		EXTI_ClearAllIRQFlag();
+		Sound_MenuNavigate();
 	}
 	// Return previous screen
 	else if(flagBtnAction0){
@@ -124,6 +128,7 @@ void GUI_UpdatePointers(void){
 			GUI_ClearSelectOptions();
 		}
 		EXTI_ClearAllIRQFlag();
+		Sound_MenuNavigate();
 	}
 }
 
