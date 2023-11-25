@@ -3,11 +3,26 @@
 <br>
 <p>This project was created to practice my Embedded C programming and PCB design skills.</p>
 
-| PCB Layout  | Schematic |
+| Board  | Schematic |
 | ------------- | ------------- |
-| <img src="https://github.com/KizEvo/game-console-project/assets/104358167/f65a34cf-7921-45c7-b5c5-4d58f3934407" width="400">  | <img src="https://github.com/KizEvo/game-console-project/assets/104358167/5c1cf5b7-315d-485e-afb1-70aa941226d8" width="400">  |
+| <img src="https://github.com/KizEvo/game-console-project/assets/104358167/467f9498-5016-4d8c-93c8-13cd78736839" width="400">   | <img src="https://github.com/KizEvo/game-console-project/assets/104358167/5c1cf5b7-315d-485e-afb1-70aa941226d8" width="400">  |
 
-| Board | Prototyping |
-| ------------- | ------------- |
-| <img src="https://github.com/KizEvo/game-console-project/assets/104358167/3c80f1a8-f103-47c6-ae15-5cc240fef9a4" width="400">  | <img src="https://github.com/KizEvo/game-console-project/assets/104358167/6380ff2a-4578-49e1-8d08-6d8fd8f847fe" width="400">  |
-| <img src="https://github.com/KizEvo/game-console-project/assets/104358167/554f09c2-90df-4fa0-889b-cdc92d14d222" width="400">  |
+<h2>Preview</h2>
+
+  > - Turn ON / OFF sound effect
+
+![gif-1](https://github.com/KizEvo/game-console-project/assets/104358167/0d0dc6e9-e998-46e0-a434-87720e0c40d6)
+
+  > - Change LCD contrast brightness
+
+![gif-3](https://github.com/KizEvo/game-console-project/assets/104358167/36dffe6f-ae02-4309-bf99-4b8811e69a05)
+
+  > - Snake game
+
+![gif-2](https://github.com/KizEvo/game-console-project/assets/104358167/785ac24c-fd42-41f6-8d73-a3c4454b0900)
+
+
+
+<h2>Demo Video</h2>
+
+[![Watch the demo](http://img.youtube.com/vi/8Zsi3qm5G8k/maxresdefault.jpg)](https://www.youtube.com/watch?v=8Zsi3qm5G8k)
