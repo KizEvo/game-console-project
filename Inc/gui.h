@@ -43,6 +43,9 @@ void GUI_UpdatePointers(void);
 void GUI_ClearSelectOptions(void);
 void GUI_FillCurrentScreenOptions(const uint8_t *optionsArr);
 
+void GUI_Volume(void);
+void GUI_Contrast(void);
+
 void GUI_SetGraphicStatus(void);
 void GUI_ClearGraphicStatus(void);
 

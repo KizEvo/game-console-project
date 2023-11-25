@@ -10,10 +10,9 @@
 #include "timer.h"
 #include "gpio.h"
 
-uint8_t muteSound = 0;
+uint8_t muteSound = 1;
 
 void Sound_PlayNote(uint16_t noteFrequency){
-	if(muteSound) return;
 	Timer1_EnablePWM(noteFrequency, 20);
 }
 
@@ -29,12 +28,14 @@ void Sound_Disable(void){
 }
 
 void Sound_MenuNavigate(void){
+	if(!muteSound) return;
 	Sound_PlayNote(NOTE_D4);
 	Timer2_Delay(90);
 	Sound_Disable();
 }
 
 void Sound_LostGame(void){
+	if(!muteSound) return;
 	Sound_PlayNote(NOTE_B5);
 	Timer2_Delay(238);
 
@@ -54,20 +55,21 @@ void Sound_LostGame(void){
 }
 
 void Sound_SnakeEatApple(void){
+	if(!muteSound) return;
 	Sound_PlayNote(NOTE_D4);
-	Timer2_Delay(90);
+	Timer2_Delay(50);
 
 	Sound_Disable();
-	Timer2_Delay(57);
+	Timer2_Delay(17);
 
 	Sound_PlayNote(NOTE_B4);
-	Timer2_Delay(223);
+	Timer2_Delay(183);
 
 	Sound_Disable();
-	Timer2_Delay(337);
+	Timer2_Delay(197);
 
 	Sound_PlayNote(NOTE_A5);
-	Timer2_Delay(130);
+	Timer2_Delay(90);
 
 	Sound_Disable();
 }

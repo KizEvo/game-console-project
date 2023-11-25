@@ -12,6 +12,7 @@
 #include "interrupt.h"
 #include "timer.h"
 #include "gpio.h"
+#include "sound.h"
 
 void GameSnake_Start(void){
 	EXTI_ClearAllIRQFlag();
@@ -66,6 +67,7 @@ void GameSnake_Start(void){
 				LCD_DrawPixel(headX, headY);
 				GameSnake_SavePathTraversal(&headX, &headY, &pathX, &pathY);
 				increaseSnakelength = 3;
+				Sound_SnakeEatApple();
 			}
 
 			if(increaseSnakelength > 0) increaseSnakelength--;
@@ -76,10 +78,10 @@ void GameSnake_Start(void){
 					directionFlag = GAMESNAKE_TURNLEFT;
 				EXTI_ClearIRQFlag(&flagBtnAction1);
 			}
-			else if(flagBtnAction2) {
+			else if(flagBtnAction5) {
 				if(directionFlag != GAMESNAKE_TURNLEFT)
 					directionFlag = GAMESNAKE_TURNRIGHT;
-				EXTI_ClearIRQFlag(&flagBtnAction2);
+				EXTI_ClearIRQFlag(&flagBtnAction5);
 			}
 			else if(flagBtnAction3) {
 				if(directionFlag != GAMESNAKE_MOVEDOWN)
@@ -94,8 +96,9 @@ void GameSnake_Start(void){
 			Timer2_Delay(speed);
 		}
 
-		EXTI_ClearIRQFlag(&flagBtnAction5);
-		EXTI_ClearIRQFlag(&flagBtnAction0);
+		EXTI_ClearAllIRQFlag();
+
+		Sound_LostGame();
 
 		LCD_ClearScreen();
 		LCD_SetPosition(5, 0);

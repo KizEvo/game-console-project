@@ -13,6 +13,7 @@
 #include "timer.h"
 #include "snake_game.h"
 #include "sound.h"
+#include "spi.h"
 
 // Screen traversal history, with new screen selected
 // the previous screen will be placed here
@@ -52,8 +53,14 @@ void GUI_ScreenSelection(void){
 			GUI_SettingsScreen();
 			break;
 		case SETTING_SOUND:
+			GUI_Volume();
+			GUI_ResetAllState();
+			GUI_FirstUpdate();
 			break;
 		case SETTING_CONTRAST:
+			GUI_Contrast();
+			GUI_ResetAllState();
+			GUI_FirstUpdate();
 			break;
 		default:
 			break;
@@ -226,6 +233,76 @@ void GUI_SettingsScreen(void){
 		GUI_UpdateLCDScreenHeader("Settings:");
 		GUI_UpdateLCDOption(graphic, options);
 	}
+}
+
+void GUI_Volume(void){
+	EXTI_ClearAllIRQFlag();
+	LCD_ClearScreen();
+
+	Timer2_Delay(100);
+
+	LCD_SetPosition(0, 0);
+	LCD_WriteString("Change Sound");
+	LCD_SetPosition(0, 1);
+	LCD_WriteString("Settings");
+
+	LCD_SetPosition(0, 3);
+	LCD_WriteString("ON(L)/OFF(R)");
+
+	while(1){
+		if(flagBtnAction0){
+			Sound_Config(SOUND_OFF);
+			break;
+		} else if (flagBtnAction5){
+			Sound_Config(SOUND_ON);
+			break;
+		}
+	}
+	LCD_ClearScreen();
+	Timer2_Delay(100);
+	EXTI_ClearAllIRQFlag();
+}
+
+void GUI_Contrast(void){
+	EXTI_ClearAllIRQFlag();
+	LCD_ClearScreen();
+
+	Timer2_Delay(100);
+
+	LCD_SetPosition(0, 0);
+	LCD_WriteString("LCD Contrast");
+	LCD_SetPosition(0, 1);
+	LCD_WriteString("Brightness");
+
+	LCD_SetPosition(0, 3);
+	LCD_WriteString("[1] <=> [2]");
+	LCD_SetPosition(0, 5);
+	LCD_WriteString("Return [5]");
+
+	while(1){
+		if(flagBtnAction1){
+			LCD_DecrementContrast();
+			EXTI_ClearIRQFlag(&flagBtnAction1);
+			// Command for Function Set in extended instruction
+			LCD_WriteCommand(LCD_COMMAND_FUNC_SET | EXTENDED_INSTRUCTION);
+			// Set Voltage VOP (LCD contrast)
+			LCD_WriteCommand(LCD_COMMAND_VOP | contrastLCD);
+			Timer2_Delay(50);
+		} else if (flagBtnAction2){
+			LCD_IncrementContrast();
+			EXTI_ClearIRQFlag(&flagBtnAction2);
+			// Command for Function Set in extended instruction
+			LCD_WriteCommand(LCD_COMMAND_FUNC_SET | EXTENDED_INSTRUCTION);
+			// Set Voltage VOP (LCD contrast)
+			LCD_WriteCommand(LCD_COMMAND_VOP | contrastLCD);
+			Timer2_Delay(50);
+		} else if (flagBtnAction5){
+			break;
+		}
+	}
+	LCD_ClearScreen();
+	Timer2_Delay(100);
+	EXTI_ClearAllIRQFlag();
 }
 
 void GUI_SetGraphicStatus(void){
